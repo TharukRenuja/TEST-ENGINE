@@ -246,6 +246,16 @@ def setup():
             if imgbb_key:
                 env_content['IMGBB_API_KEY'] = imgbb_key
 
+            # --- Persistent Storage for Serverless ---
+            # Save ALL generated/provided environment keys to Firestore
+            infra_keys = env_content.copy()
+            infra_keys['ADMIN_EMAIL'] = email # Ensure this is present
+            infra_keys['updated_at'] = datetime.now()
+            
+            # Don't save large binary-like strings to the settings document if possible,
+            # but for env vars we want full parity.
+            database.db.collection('settings').document('infrastructure').set(infra_keys, merge=True)
+
             # Write back to .env (Try silently)
             try:
                 with open(env_path, 'w') as f:
