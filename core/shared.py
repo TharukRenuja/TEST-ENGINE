@@ -15,11 +15,15 @@ def init_cache(cache_instance):
 @cache.memoize(timeout=300)
 def _get_cached_settings():
     if database.db is None: 
-        print("🔍 [shared.py] get_settings: DB is None")
         return {}
     doc = database.db.collection('settings').document('website').get()
     data = doc.to_dict() if doc.exists else {}
-    print(f"🔍 [shared.py] get_settings: Found {len(data)} fields in 'website' doc")
+    if not data:
+        # Don't return empty cached data if we expect it to be there
+        # This is a bit tricky with memoize. Let's just log it.
+        print("⚠️ [shared.py] get_settings: 'website' doc is EMPTY in Firestore")
+    else:
+        print(f"✅ [shared.py] get_settings: Loaded {len(data)} fields")
     return data
 
 def get_settings():

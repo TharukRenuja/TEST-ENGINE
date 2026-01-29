@@ -266,6 +266,11 @@ def setup():
             if imgbb_key:
                 env_content['IMGBB_API_KEY'] = imgbb_key
 
+            # Add Redis URL to .env if provided in setup
+            redis_url = request.form.get('redis_url')
+            if redis_url:
+                env_content['REDIS_URL'] = redis_url
+
             # --- Persistent Storage for Serverless ---
             # Save ALL generated/provided environment keys to Firestore
             infra_keys = env_content.copy()
@@ -296,13 +301,14 @@ def setup():
             import traceback
             traceback.print_exc()
 
-            # Clear cache so new settings load immediately
-            if cache:
-                cache.clear()
-                print("✅ Cache cleared after setup")
-                
-            flash('🎉 Setup complete! All modules configured.', 'success')
-            return redirect(url_for('auth.login'))
+        # --- Finalize Setup ---
+        # Clear cache so new settings load immediately
+        if cache:
+            cache.clear()
+            print("✅ Cache cleared after setup")
+            
+        flash('🎉 Setup complete! All modules configured.', 'success')
+        return redirect(url_for('auth.login'))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():

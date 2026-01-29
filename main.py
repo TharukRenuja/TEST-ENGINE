@@ -23,7 +23,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-123')
 
 # Configure Caching
-app.config['CACHE_TYPE'] = 'SimpleCache'  # Use Redis in production
+redis_url = os.getenv('REDIS_URL')
+if redis_url:
+    app.config['CACHE_TYPE'] = 'RedisCache'
+    app.config['CACHE_REDIS_URL'] = redis_url
+    print("🚀 Global cache enabled via Redis")
+else:
+    app.config['CACHE_TYPE'] = 'SimpleCache'
+    print("ℹ️  Local in-memory cache enabled (SimpleCache)")
+
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes
 cache = Cache(app)
 
