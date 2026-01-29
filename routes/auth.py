@@ -9,7 +9,9 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 from core import database
 from core.extensions import bcrypt
-from core.shared import login_required, get_settings, cache
+from core.extensions import bcrypt
+import core.shared as shared
+from core.shared import login_required, get_settings
 from google.cloud.firestore import FieldFilter
 
 auth_bp = Blueprint('auth', __name__)
@@ -303,8 +305,8 @@ def setup():
 
         # --- Finalize Setup ---
         # Clear cache so new settings load immediately
-        if cache:
-            cache.clear()
+        if shared.cache:
+            shared.cache.clear()
             print("✅ Cache cleared after setup")
             
         flash('🎉 Setup complete! All modules configured.', 'success')
