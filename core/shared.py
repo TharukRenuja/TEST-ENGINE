@@ -12,39 +12,49 @@ def init_cache(cache_instance):
     global cache
     cache = cache_instance
 
+@cache.memoize(timeout=300)
+def _get_cached_settings():
+    if database.db is None: 
+        print("🔍 [shared.py] get_settings: DB is None")
+        return {}
+    doc = database.db.collection('settings').document('website').get()
+    data = doc.to_dict() if doc.exists else {}
+    print(f"🔍 [shared.py] get_settings: Found {len(data)} fields in 'website' doc")
+    return data
+
 def get_settings():
     if database.db is None:
         return {}
     if cache:
-        @cache.memoize(timeout=300)
-        def _get_settings():
-            doc = database.db.collection('settings').document('website').get()
-            return doc.to_dict() if doc.exists else {}
-        return _get_settings()
+        return _get_cached_settings()
     doc = database.db.collection('settings').document('website').get()
+    return doc.to_dict() if doc.exists else {}
+
+@cache.memoize(timeout=300)
+def _get_cached_seo():
+    if database.db is None: return {}
+    doc = database.db.collection('settings').document('seo').get()
     return doc.to_dict() if doc.exists else {}
 
 def get_seo():
     if database.db is None:
         return {}
     if cache:
-        @cache.memoize(timeout=300)
-        def _get_seo():
-            doc = database.db.collection('settings').document('seo').get()
-            return doc.to_dict() if doc.exists else {}
-        return _get_seo()
+        return _get_cached_seo()
     doc = database.db.collection('settings').document('seo').get()
     return doc.to_dict() if doc.exists else {}
+
+@cache.memoize(timeout=300)
+def _get_cached_ui():
+    if database.db is None: return {'primary_color': '#FFD700', 'theme': 'dark'}
+    doc = database.db.collection('settings').document('ui').get()
+    return doc.to_dict() if doc.exists else {'primary_color': '#FFD700', 'theme': 'dark'}
 
 def get_ui_settings():
     if database.db is None:
         return {'primary_color': '#FFD700', 'theme': 'dark'}
     if cache:
-        @cache.memoize(timeout=300)
-        def _get_ui_settings():
-            doc = database.db.collection('settings').document('ui').get()
-            return doc.to_dict() if doc.exists else {'primary_color': '#FFD700', 'theme': 'dark'}
-        return _get_ui_settings()
+        return _get_cached_ui()
     doc = database.db.collection('settings').document('ui').get()
     return doc.to_dict() if doc.exists else {'primary_color': '#FFD700', 'theme': 'dark'}
 

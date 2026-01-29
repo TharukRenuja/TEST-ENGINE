@@ -105,6 +105,7 @@ def bootstrap_check():
         print(f"⚠️  Bootstrap check error: {type(e).__name__}: {e}")
         import traceback
         traceback.print_exc()
+        print("ℹ️  Critical Error in bootstrap check, defaulting to setup for safety")
         return redirect(url_for('auth.setup'))
 
 # --- Background Jobs (Maintained in main.py for state access) ---
